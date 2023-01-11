@@ -1,0 +1,17 @@
+.form {
+  margin: 40px auto;
+  padding: 15px;
+  width: 40%;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+
+  border: 1px solid #a9a9a9;
+  border-radius: 10px;
+}
+
+.btn {
+  margin-right: 10px;
+}
