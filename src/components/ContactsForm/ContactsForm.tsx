@@ -1,19 +1,24 @@
-/* eslint-disable */
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import { useAppDispatch, useAppSelector } from '../../app/hooks';
 import { Companies } from '../../types/Companies';
 import { Contacts } from '../../types/Contacts';
 import { CompaniesSelect } from '../CompaniesSelect';
+import { actions as selectedContactActions } from '../../features/selectedContact';
 import './ContactsForm.scss';
+import { createNewContact, getDataFromServer, updateContactOnServer } from '../../api/api';
+import { QueryType } from '../../types/QueryType';
+import { actions as contactActions } from '../../features/contacts';
 
 type Props = {
-  contacts: Contacts[];
-  setContacts: React.Dispatch<React.SetStateAction<Contacts[]>>;
-  companies: Companies[];
   selectedContactId: number;
-  setSelectedContact: React.Dispatch<React.SetStateAction<number | null>>;
 };
 
-export const ContactsForm: React.FC<Props> = ({ contacts, setContacts, companies, selectedContactId, setSelectedContact }) => {
+export const ContactsForm: React.FC<Props> = ({ selectedContactId }) => {
+  const dispatch = useAppDispatch();
+
+  const contacts: Contacts[] = useAppSelector(state => state.contacts);
+  const companies: Companies[] = useAppSelector(state => state.companies);
+
   const [name, setName] = useState('');
   const [lastname, setLastname] = useState('');
   const [email, setEmail] = useState('');
@@ -22,6 +27,27 @@ export const ContactsForm: React.FC<Props> = ({ contacts, setContacts, companies
   const [city, setCity] = useState('');
   const [country, setCountry] = useState('');
   const [company, setCompany] = useState(1);
+
+  useEffect(() => {
+    if (selectedContactId > 0) {
+      const selectedContact = contacts.find(contact => contact.id === selectedContactId);
+  
+      if (selectedContact) {
+        setName(selectedContact.name);
+        setLastname(selectedContact.lastname);
+        setEmail(selectedContact.email);
+        setPhone(selectedContact.number);
+        setAdress(selectedContact.adress);
+        setCity(selectedContact.city);
+        setCountry(selectedContact.country);
+        setCompany(selectedContact.companyid);
+      }
+    }
+  }, [selectedContactId])
+
+  const handleBackButton = () => {
+    dispatch(selectedContactActions.removeContact());
+  };
 
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
@@ -34,8 +60,12 @@ export const ContactsForm: React.FC<Props> = ({ contacts, setContacts, companies
     && country.trim();
 
     if (verifyData) {
+      const id = selectedContactId > 0
+        ? selectedContactId
+        : Math.max(...contacts.map(item => item.id)) + 1;
+
       const newContact: Contacts = {
-        id: Number(new Date()),
+        id,
         name,
         lastname,
         email,
@@ -43,11 +73,46 @@ export const ContactsForm: React.FC<Props> = ({ contacts, setContacts, companies
         adress,
         city,
         country,
-        companyId: company,
+        companyid: company,
       }
 
-      setContacts([...contacts, newContact]);
-      setSelectedContact(null);
+      if (selectedContactId === 0) {
+        createContact(newContact);
+      } else {
+        updateContact(newContact);
+      }
+
+      dispatch(selectedContactActions.removeContact());
+    }
+  };
+
+  const updateContact = async(updatedContact: Contacts) => {
+    try {
+      await updateContactOnServer(updatedContact, updatedContact.id);
+
+      loadContacts();
+    } catch(err) {
+      console.log(err);
+    }
+  }
+
+  const createContact = async(newContact: Contacts) => {
+    try {
+      await createNewContact(newContact);
+
+      loadContacts();
+    } catch(err) {
+      console.log(err);
+    }
+  };
+
+  const loadContacts = async() => {
+    try {
+      const data = await getDataFromServer(QueryType.CONTACTS);
+
+      dispatch(contactActions.setContacts(data));
+    } catch(err) {
+      console.log(err)
     }
   };
 
@@ -201,11 +266,15 @@ export const ContactsForm: React.FC<Props> = ({ contacts, setContacts, companies
       />
 
       <div className="button-container">
-        <button type="submit" className="btn btn-success">Add new contact</button>
+        <button type="submit" className="btn btn-success">
+          {selectedContactId === 0 
+          ? 'Add new contact'
+          : 'Edit contact'}
+        </button>
         <button 
           type="button" 
           className="btn btn-danger"
-          onClick={() => setSelectedContact(null)}
+          onClick={() => handleBackButton()}
         >
           Back
         </button>

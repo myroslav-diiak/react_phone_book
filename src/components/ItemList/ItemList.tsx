@@ -1,18 +1,13 @@
 import React from "react";
 import { useAppSelector } from "../../app/hooks";
-import { Companies } from "../../types/Companies";
 import { Contacts } from "../../types/Contacts";
 import { Item } from "../Item";
 import { Loader } from "../Loader";
 import './ItemList.scss';
 
-type Props = {
-  setContacts: React.Dispatch<React.SetStateAction<Contacts[]>>;
-  companies: Companies[];
-}
 
-export const ItemList: React.FC<Props> = ({ companies, setContacts }) => {
-  const contacts = useAppSelector(state => state.contacts);
+export const ItemList: React.FC = () => {
+  const contacts: Contacts[] = useAppSelector(state => state.contacts);
 
   return(
     <>
@@ -34,9 +29,6 @@ export const ItemList: React.FC<Props> = ({ companies, setContacts }) => {
             <Item
               key={item.id}
               contact={item} 
-              contacts={contacts}
-              setContacts={setContacts}
-              compamies={companies}
             />
           ))}
         </tbody>

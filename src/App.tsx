@@ -1,29 +1,39 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import { getDataFromServer } from './api/api';
 import './App.scss';
-import { useAppDispatch } from './app/hooks';
+import { useAppDispatch, useAppSelector } from './app/hooks';
 import { ContactsForm } from './components/ContactsForm';
 import { ItemList } from './components/ItemList';
-import { Companies } from './types/Companies';
-import { Contacts } from './types/Contacts';
 import { QueryType } from './types/QueryType';
 import { actions as contactActions } from './features/contacts';
-/* eslint-disable */
+import { actions as companiesActions } from './features/companies';
+import { actions as selectedContactActions } from './features/selectedContact';
+import { actions as isCompanyEdittingActions } from './features/isCompanyEditting';
+import { CompaniesForm } from './components/CompaniesForm';
+
 function App() {
   const dispatch = useAppDispatch();
-  const [companies, setCompanies] = useState<Companies[]>([]);
-  const [contacts, setContacts] = useState<Contacts[]>([]);
-  const [selectedContact, setSelectedContact] = useState<number | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+
+  const selectedContact = useAppSelector(state => state.selectedContact);
+  const isCompanyEditting = useAppSelector(state => state.isCompanyEditting);
+
+  const addButtonHandler = () => {
+    dispatch(selectedContactActions.setContact(0));
+  }
+
+  const editCompanyHandler = () => {
+    dispatch(isCompanyEdittingActions.setIsEdittingCompany(true));
+  }
 
   const loadData = async(type: QueryType) => {
-    setIsLoading(true);
-
     try {
       const data = await getDataFromServer(type);
 
-      dispatch(contactActions.setContacts(data));
-      setIsLoading(false);
+      if (type === QueryType.CONTACTS) {
+        dispatch(contactActions.setContacts(data));
+      } else {
+        dispatch(companiesActions.setCompanies(data));
+      }
     } catch(err) {
       console.log(err)
     }
@@ -31,18 +41,19 @@ function App() {
 
   useEffect(() => {
     loadData(QueryType.CONTACTS);
+    loadData(QueryType.COMPANIES);
   }, [])
 
   if (selectedContact !== null) {
     return (
       <ContactsForm
-        contacts={contacts}
-        setContacts={setContacts}
-        companies={companies}
         selectedContactId={selectedContact}
-        setSelectedContact={setSelectedContact}
       />
     );
+  }
+
+  if (isCompanyEditting) {
+    return <CompaniesForm />;
   }
 
   return (
@@ -50,14 +61,19 @@ function App() {
       <button 
         type="button" 
         className="btn btn-success"
-        onClick={() => setSelectedContact(0)}
+        onClick={() => addButtonHandler()}
       >
         Add Contact
       </button>
-      <ItemList
-        companies={companies} 
-        setContacts={setContacts}
-      />
+      <button
+        type="button"
+        className="btn btn-warning"
+        onClick={() => editCompanyHandler()}
+      >
+        Add/Edit companies
+      </button>
+
+      <ItemList />
     </div>
   );
 }

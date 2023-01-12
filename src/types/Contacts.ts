@@ -7,5 +7,5 @@ export interface Contacts {
   country: string,
   email: string,
   number: string,
-  companyId: number,
+  companyid: number,
 }
