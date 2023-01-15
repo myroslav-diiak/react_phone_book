@@ -6,12 +6,16 @@ import companiesReducer from '../features/companies';
 import contactsReducer from '../features/contacts';
 import isEdittingCompanyReducer from '../features/isCompanyEditting';
 import selectedContactReducer from '../features/selectedContact';
+import sortDirectionReducer from '../features/sortDirection';
+import sortTypeReducer from '../features/sortType';
 
 const rootReducer = combineReducers({
   contacts: contactsReducer,
   companies: companiesReducer,
   selectedContact: selectedContactReducer,
   isCompanyEditting: isEdittingCompanyReducer,
+  sortType: sortTypeReducer,
+  sortDirection: sortDirectionReducer,
 });
 
 export const store = createStore(

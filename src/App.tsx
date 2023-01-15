@@ -7,23 +7,14 @@ import { ItemList } from './components/ItemList';
 import { QueryType } from './types/QueryType';
 import { actions as contactActions } from './features/contacts';
 import { actions as companiesActions } from './features/companies';
-import { actions as selectedContactActions } from './features/selectedContact';
-import { actions as isCompanyEdittingActions } from './features/isCompanyEditting';
 import { CompaniesForm } from './components/CompaniesForm';
+import { Header } from './components/Header';
 
 function App() {
   const dispatch = useAppDispatch();
 
   const selectedContact = useAppSelector(state => state.selectedContact);
   const isCompanyEditting = useAppSelector(state => state.isCompanyEditting);
-
-  const addButtonHandler = () => {
-    dispatch(selectedContactActions.setContact(0));
-  }
-
-  const editCompanyHandler = () => {
-    dispatch(isCompanyEdittingActions.setIsEdittingCompany(true));
-  }
 
   const loadData = async(type: QueryType) => {
     try {
@@ -58,21 +49,7 @@ function App() {
 
   return (
     <div className="App">
-      <button 
-        type="button" 
-        className="btn btn-success"
-        onClick={() => addButtonHandler()}
-      >
-        Add Contact
-      </button>
-      <button
-        type="button"
-        className="btn btn-warning"
-        onClick={() => editCompanyHandler()}
-      >
-        Add/Edit companies
-      </button>
-
+      <Header />
       <ItemList />
     </div>
   );
