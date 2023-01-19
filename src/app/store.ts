@@ -5,6 +5,8 @@ import thunk from 'redux-thunk';
 import companiesReducer from '../features/companies';
 import contactsReducer from '../features/contacts';
 import isEdittingCompanyReducer from '../features/isCompanyEditting';
+import isLoadingReducer from '../features/isLoading';
+import listContentReducer from '../features/listContent';
 import selectedContactReducer from '../features/selectedContact';
 import sortDirectionReducer from '../features/sortDirection';
 import sortTypeReducer from '../features/sortType';
@@ -16,6 +18,8 @@ const rootReducer = combineReducers({
   isCompanyEditting: isEdittingCompanyReducer,
   sortType: sortTypeReducer,
   sortDirection: sortDirectionReducer,
+  listContent: listContentReducer,
+  isLoading: isLoadingReducer,
 });
 
 export const store = createStore(

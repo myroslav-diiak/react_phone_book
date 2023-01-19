@@ -7,6 +7,7 @@ import { ItemList } from './components/ItemList';
 import { QueryType } from './types/QueryType';
 import { actions as contactActions } from './features/contacts';
 import { actions as companiesActions } from './features/companies';
+import { actions as isLoadinActions } from './features/isLoading';
 import { CompaniesForm } from './components/CompaniesForm';
 import { Header } from './components/Header';
 
@@ -25,12 +26,15 @@ function App() {
       } else {
         dispatch(companiesActions.setCompanies(data));
       }
+
+      dispatch(isLoadinActions.setIsLoading(false));
     } catch(err) {
       console.log(err)
     }
   }
 
   useEffect(() => {
+    dispatch(isLoadinActions.setIsLoading(true));
     loadData(QueryType.CONTACTS);
     loadData(QueryType.COMPANIES);
   }, [])

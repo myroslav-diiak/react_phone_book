@@ -5,13 +5,16 @@ import { actions as selectedContactActions } from '../../features/selectedContac
 import { actions as isCompanyEdittingActions } from '../../features/isCompanyEditting';
 import { actions as sortTypeActions } from '../../features/sortType';
 import { actions as sortDirectionActions } from '../../features/sortDirection';
+import { actions as listContentActions } from '../../features/listContent';
 import { SortType } from "../../types/SortType";
+import { ListContent } from "../../types/ListContent";
 
 export const Header: React.FC = () => {
   const sotrTypes = ['None', 'Name', 'Lastname', 'City', 'Country', 'Company'];
   const dispatch = useAppDispatch();
   const currentSortType: SortType = useAppSelector(state => state.sortType);
   const currentSortDirection = useAppSelector(state => state.sortDirection);
+  const currentListContent = useAppSelector(state => state.listContent);
 
   const addButtonHandler = () => {
     dispatch(selectedContactActions.setContact(0));
@@ -47,6 +50,10 @@ export const Header: React.FC = () => {
     }
   }
 
+  const listContentRadioHandler = (listContent: ListContent) => {
+    dispatch(listContentActions.setListContent(listContent));
+  }
+
   return (
     <header>
       <button 
@@ -61,7 +68,7 @@ export const Header: React.FC = () => {
         className="btn btn-warning"
         onClick={() => editCompanyHandler()}
       >
-        Add/Edit companies
+        Add company
       </button>
 
       Sort by:
@@ -90,6 +97,30 @@ export const Header: React.FC = () => {
       </svg>
       {currentSortDirection ? 'Asc': 'Desc'}
     </label>
+
+    <br />
+
+    <input 
+      type="radio" 
+      className="btn-check" 
+      name="options-outlined" 
+      id="list-content-contacts" 
+      autoComplete="off"
+      checked={currentListContent === 'contacts'}
+      onChange={() => listContentRadioHandler('contacts')}
+    />
+    <label className="btn btn-outline-primary" htmlFor="list-content-contacts">Contacts</label>
+
+    <input 
+      type="radio" 
+      className="btn-check" 
+      name="options-outlined" 
+      id="list-content-companies" 
+      autoComplete="off"
+      checked={currentListContent === 'companies'}
+      onChange={() => listContentRadioHandler('companies')}
+    />
+    <label className="btn btn-outline-primary" htmlFor="list-content-companies">Companies</label>
     </header>
   );
 };

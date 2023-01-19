@@ -6,18 +6,18 @@ import { Contacts } from "../../types/Contacts";
 import { QueryType } from "../../types/QueryType";
 import { actions as contactActions } from '../../features/contacts';
 import { actions as selectedContactActions } from '../../features/selectedContact';
+import { ListContent } from "../../types/ListContent";
 
 type Props = {
-  contact: Contacts;
+  contact?: Contacts | null;
+  company?: Companies | null;
 }
 
-export const Item: React.FC<Props> = ({ contact }) => {
+export const Item: React.FC<Props> = ({ contact, company }) => {
   const dispatch = useAppDispatch();
   const companies: Companies[] = useAppSelector(state => state.companies);
-
-  const {id, name, lastname, adress, city, country, email, number, companyid} = contact;
-
-  const company = companies.find(item => item.id === companyid);
+  
+  const currentCompany = companies.find(item => item.id === contact?.companyid);
 
   const loadContacts = async() => {
     try {
@@ -29,11 +29,11 @@ export const Item: React.FC<Props> = ({ contact }) => {
     }
   };
 
-  const handleEdit = (id: number) => {
+  const handleContactEdit = (id: number) => {
     dispatch(selectedContactActions.setContact(id));
   }
 
-  const handleRemove = async(id: number) => {
+  const handleContactRemove = async(id: number) => {
     try {
       await deleteItemFromServer(QueryType.CONTACTS, id);
       
@@ -43,38 +43,80 @@ export const Item: React.FC<Props> = ({ contact }) => {
     }
   };
 
-  return(
-    <tr>
-      <td>{name}</td>
-      <td>{lastname}</td>
-      <td>{adress}</td>
-      <td>{city}</td>
-      <td>{country}</td>
-      <td>{email}</td>
-      <td>{number}</td>
-      <td>
-        <a href={company?.link}>
-          {company?.name}
-        </a>
-      </td>
-      <td>
-        <button 
-          type="button" 
-          className="btn btn-warning"
-          onClick={() => handleEdit(id)}
-        >
-          Edit
-        </button>
-      </td>
-      <td>
-        <button 
-          type="button" 
-          className="btn btn-danger"
-          onClick={() => handleRemove(contact.id)}
-        >
-          Remove
-        </button>
-      </td>
-    </tr>
-  )
+  if (contact) {
+    return (
+      <tr>
+        <td>{contact.name}</td>
+        <td>{contact.lastname}</td>
+        <td>{contact.adress}</td>
+        <td>{contact.city}</td>
+        <td>{contact.country}</td>
+        <td>{contact.email}</td>
+        <td>{contact.number}</td>
+        <td>
+          <a href={currentCompany?.link}>
+            {currentCompany?.name}
+          </a>
+        </td>
+        <td>
+          <button 
+            type="button" 
+            className="btn btn-warning"
+            onClick={() => handleContactEdit(contact.id)}
+          >
+            Edit
+          </button>
+        </td>
+        <td>
+          <button 
+            type="button" 
+            className="btn btn-danger"
+            onClick={() => handleContactRemove(contact.id)}
+          >
+            Remove
+          </button>
+        </td>
+      </tr>
+    );
+  }
+
+  if (company) {
+    return (
+      <tr>
+        <td><img className="company-logo" src="" /></td>
+        <td>
+        <a href={company.link}>{company.name}</a>
+        </td>
+        <td>
+          <button 
+            type="button" 
+            className="btn btn-primary"
+            onClick={() => {return}}
+          >
+            Staff
+          </button>
+        </td>
+        <td>
+          <button 
+            type="button" 
+            className="btn btn-warning"
+            onClick={() => {return}}
+          >
+            Edit
+          </button>
+        </td>
+        <td>
+          <button 
+            type="button" 
+            className="btn btn-danger"
+            onClick={() => {return}}
+          >
+            Remove
+          </button>
+        </td>
+      </tr>
+    )
+  }
+
+  return <></>;
 }
