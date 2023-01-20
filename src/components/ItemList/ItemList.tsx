@@ -6,6 +6,7 @@ import { ListContent } from "../../types/ListContent";
 import { SortType } from "../../types/SortType";
 import { Item } from "../Item";
 import { Loader } from "../Loader";
+import { StaffList } from "../StaffList";
 import './ItemList.scss';
 
 
@@ -16,6 +17,7 @@ export const ItemList: React.FC = () => {
   const sortDirection = useAppSelector(state => state.sortDirection);
   const isLoading = useAppSelector(state => state.isLoading);
   const listContent: ListContent = useAppSelector(state => state.listContent);
+  const selectedStaff = useAppSelector(state => state.selectedStaff);
 
   const sortContacts = () => {
     const sorted = contacts.sort((firstItem, nextItem) => {
@@ -68,7 +70,8 @@ export const ItemList: React.FC = () => {
         {isLoading && <Loader />}
       </>
     )
-    : (<table className="table table-striped">
+    : (<>
+        <table className="table table-striped">
           <thead>
             <td>Logo</td>
             <td>Company</td>
@@ -85,4 +88,6 @@ export const ItemList: React.FC = () => {
             ))}
           </tbody>
         </table>
+        {selectedStaff && <StaffList />}
+      </>
     )}

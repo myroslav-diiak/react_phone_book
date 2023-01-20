@@ -1,12 +1,15 @@
 import React from "react";
+import './Item.scss';
 import { deleteItemFromServer, getDataFromServer } from "../../api/api";
 import { useAppDispatch, useAppSelector } from "../../app/hooks";
 import { Companies } from "../../types/Companies";
 import { Contacts } from "../../types/Contacts";
 import { QueryType } from "../../types/QueryType";
 import { actions as contactActions } from '../../features/contacts';
+import { actions as companyActions } from '../../features/companies';
 import { actions as selectedContactActions } from '../../features/selectedContact';
-import { ListContent } from "../../types/ListContent";
+import { actions as selectedCompanyActions } from '../../features/selectedCompany';
+import { actions as selectedStaffActions } from '../../features/selectedStaff';
 
 type Props = {
   contact?: Contacts | null;
@@ -29,6 +32,17 @@ export const Item: React.FC<Props> = ({ contact, company }) => {
     }
   };
 
+  const loadCompanies = async() => {
+    try {
+      const data = await getDataFromServer(QueryType.COMPANIES);
+
+      dispatch(companyActions.setCompanies(data));
+    } catch(err) {
+      console.log(err);
+      
+    }
+  };
+
   const handleContactEdit = (id: number) => {
     dispatch(selectedContactActions.setContact(id));
   }
@@ -43,6 +57,24 @@ export const Item: React.FC<Props> = ({ contact, company }) => {
     }
   };
 
+  const handleCompanyRemove = async(id: number) => {
+    try {
+      await deleteItemFromServer(QueryType.COMPANIES, id);
+
+      loadCompanies();
+    } catch(err) {
+      console.log(err);
+    }
+  };
+
+  const handleCompanyEdit = (id: number) => {
+    dispatch(selectedCompanyActions.setCompany(id));
+  };
+
+  const handleStaffSelect = (id: number) => {
+    dispatch(selectedStaffActions.setStaff(id));
+  };
+
   if (contact) {
     return (
       <tr>
@@ -54,9 +86,11 @@ export const Item: React.FC<Props> = ({ contact, company }) => {
         <td>{contact.email}</td>
         <td>{contact.number}</td>
         <td>
-          <a href={currentCompany?.link}>
-            {currentCompany?.name}
-          </a>
+          {currentCompany
+          ? (<a href={currentCompany?.link}>
+              {currentCompany?.name}
+            </a>)
+          : 'No company'}
         </td>
         <td>
           <button 
@@ -83,7 +117,15 @@ export const Item: React.FC<Props> = ({ contact, company }) => {
   if (company) {
     return (
       <tr>
-        <td><img className="company-logo" src="" /></td>
+        <td>
+          <img 
+            className="company-logo" 
+            src={company.logolink 
+              ? company.logolink 
+              : 'https://icons.veryicon.com/png/o/miscellaneous/alibaba_b2b_h5/error-108.png'}
+            alt={company.name}
+          />
+        </td>
         <td>
         <a href={company.link}>{company.name}</a>
         </td>
@@ -91,7 +133,7 @@ export const Item: React.FC<Props> = ({ contact, company }) => {
           <button 
             type="button" 
             className="btn btn-primary"
-            onClick={() => {return}}
+            onClick={() => {handleStaffSelect(company.id)}}
           >
             Staff
           </button>
@@ -100,7 +142,7 @@ export const Item: React.FC<Props> = ({ contact, company }) => {
           <button 
             type="button" 
             className="btn btn-warning"
-            onClick={() => {return}}
+            onClick={() => handleCompanyEdit(company.id)}
           >
             Edit
           </button>
@@ -109,7 +151,7 @@ export const Item: React.FC<Props> = ({ contact, company }) => {
           <button 
             type="button" 
             className="btn btn-danger"
-            onClick={() => {return}}
+            onClick={() => handleCompanyRemove(company.id)}
           >
             Remove
           </button>

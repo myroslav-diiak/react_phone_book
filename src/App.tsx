@@ -15,7 +15,7 @@ function App() {
   const dispatch = useAppDispatch();
 
   const selectedContact = useAppSelector(state => state.selectedContact);
-  const isCompanyEditting = useAppSelector(state => state.isCompanyEditting);
+  const selectedCompany = useAppSelector(state => state.selectedCompany);
 
   const loadData = async(type: QueryType) => {
     try {
@@ -40,21 +40,19 @@ function App() {
   }, [])
 
   if (selectedContact !== null) {
-    return (
-      <ContactsForm
-        selectedContactId={selectedContact}
-      />
-    );
+    return <ContactsForm selectedContactId={selectedContact} />
   }
 
-  if (isCompanyEditting) {
-    return <CompaniesForm />;
+  if (selectedCompany !== null) {
+    return <CompaniesForm selectedCompanyId={selectedCompany} />;
   }
 
   return (
     <div className="App">
-      <Header />
-      <ItemList />
+      <div className="app-layout">
+        <Header />
+        <ItemList />
+      </div>
     </div>
   );
 }

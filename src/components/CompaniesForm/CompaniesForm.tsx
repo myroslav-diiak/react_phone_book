@@ -1,20 +1,23 @@
 import React, { useEffect, useState } from "react";
 import { useAppDispatch, useAppSelector } from "../../app/hooks";
-import { CompaniesSelect } from "../CompaniesSelect";
-import { actions as isCompanyEdittingActions } from '../../features/isCompanyEditting';
+import { actions as selectedCompanyActions } from '../../features/selectedCompany';
 import { actions as companiesActions } from '../../features/companies';
 import { Companies } from "../../types/Companies";
 import { createNewCompany, getDataFromServer, updateCompanyOnServer } from "../../api/api";
 import { QueryType } from "../../types/QueryType";
 
-export const CompaniesForm: React.FC = () => {
+type Props = {
+  selectedCompanyId: number;
+}
+
+export const CompaniesForm: React.FC<Props> = ({ selectedCompanyId }) => {
   const dispatch = useAppDispatch();
 
   const companies: Companies[] = useAppSelector(state => state.companies);
 
-  const [selectedCompanyId, setSelectedCompanyId] = useState(0);
   const [name, setName] = useState('');
   const [link, setLink] = useState('');
+  const [logoLink, setLogoLink] = useState('');
 
   useEffect(() => {
     if (selectedCompanyId > 0) {
@@ -23,10 +26,12 @@ export const CompaniesForm: React.FC = () => {
       if (selectedCompany) {
         setName(selectedCompany.name);
         setLink(selectedCompany.link);
+        setLogoLink(selectedCompany.logolink ? selectedCompany.logolink : '');
       }
     } else {
       setName('');
       setLink('');
+      setLogoLink('');
     }
   }, [selectedCompanyId]);
 
@@ -44,6 +49,7 @@ export const CompaniesForm: React.FC = () => {
         id,
         name,
         link,
+        logolink: logoLink || null,
       }
 
       if (selectedCompanyId === 0) {
@@ -52,7 +58,7 @@ export const CompaniesForm: React.FC = () => {
         updateCompany(newCompany);
       }
 
-      dispatch(isCompanyEdittingActions.removeIsEdittingCompany());
+      dispatch(selectedCompanyActions.removeCompany());
     }
   };
 
@@ -87,17 +93,11 @@ export const CompaniesForm: React.FC = () => {
   };
 
   const handleBackButton = () => {
-    dispatch(isCompanyEdittingActions.removeIsEdittingCompany());
+    dispatch(selectedCompanyActions.removeCompany());
   };
 
   return (
     <form className="form" onSubmit={(event) => handleSubmit(event)}>
-      <CompaniesSelect
-        companies={companies}
-        company={selectedCompanyId}
-        setCompany={setSelectedCompanyId}
-      />
-
       <div className="row g-3 align-items-center">
         <div className="col-auto">
           <label className="col-form-label">Company name</label>
@@ -134,6 +134,26 @@ export const CompaniesForm: React.FC = () => {
         <div className="col-auto">
           <span className="form-text">
             Enter company link
+          </span>
+        </div>
+      </div>
+
+      <div className="row g-3 align-items-center">
+        <div className="col-auto">
+          <label className="col-form-label">Logo link</label>
+        </div>
+        <div className="col-auto">
+          <input 
+            value={logoLink}
+            onChange={(event) => setLogoLink(event.target.value)}
+            type="text" 
+            className="form-control" 
+            required 
+          />
+        </div>
+        <div className="col-auto">
+          <span className="form-text">
+            Enter logo link
           </span>
         </div>
       </div>

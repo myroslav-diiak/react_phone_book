@@ -2,7 +2,7 @@ import React from "react";
 import "./Header.scss";
 import { useAppDispatch, useAppSelector } from "../../app/hooks";
 import { actions as selectedContactActions } from '../../features/selectedContact';
-import { actions as isCompanyEdittingActions } from '../../features/isCompanyEditting';
+import { actions as selectedCompanyActions } from '../../features/selectedCompany';
 import { actions as sortTypeActions } from '../../features/sortType';
 import { actions as sortDirectionActions } from '../../features/sortDirection';
 import { actions as listContentActions } from '../../features/listContent';
@@ -21,7 +21,7 @@ export const Header: React.FC = () => {
   }
 
   const editCompanyHandler = () => {
-    dispatch(isCompanyEdittingActions.setIsEdittingCompany(true));
+    dispatch(selectedCompanyActions.setCompany(0));
   }
 
   const sortDirectionHandler = () => {
