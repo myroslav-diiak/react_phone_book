@@ -158,7 +158,6 @@ export const CompaniesForm: React.FC<Props> = ({ selectedCompanyId }) => {
           onChange={(event) => setLogoLink(event.target.value)}
           type="text" 
           className="form-control" 
-          required 
         />
         <div className="form-text">
           {validate.includes('logoLink') && 'Enter correct link'}
