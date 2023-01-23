@@ -18,6 +18,8 @@ export const CompaniesForm: React.FC<Props> = ({ selectedCompanyId }) => {
   const [name, setName] = useState('');
   const [link, setLink] = useState('');
   const [logoLink, setLogoLink] = useState('');
+  const [validate, setValidate] = useState<string[]>([]);
+  const [isCompanyExists, setIsCompanyExists] = useState(false);
 
   useEffect(() => {
     if (selectedCompanyId > 0) {
@@ -35,12 +37,36 @@ export const CompaniesForm: React.FC<Props> = ({ selectedCompanyId }) => {
     }
   }, [selectedCompanyId]);
 
+  const validateData = () => {
+    const errors = [];
+    const stringFromat = /^([a-zA-Z ]){2,30}$/;
+    // eslint-disable-next-line
+    const linkFormat = /((([A-Za-z]{3,9}:(?:\/\/)?)(?:[-;:&=\+\$,\w]+@)?[A-Za-z0-9.-]+|(?:www.|[-;:&=\+\$,\w]+@)[A-Za-z0-9.-]+)((?:\/[\+~%\/.\w-_]*)?\??(?:[-\+=&;%@.\w_]*)#?(?:[\w]*))?)/;
+
+    const validName = stringFromat.test(name);
+    const validLink = linkFormat.test(link);
+    let validLogoLink;
+
+    if (logoLink.length) {
+      validLogoLink = linkFormat.test(logoLink);
+    } else {
+      validLogoLink = true;
+    }
+
+    !validName && errors.push('name');
+    !validLink && errors.push('link');
+    !validLink && errors.push('logoLink');
+
+    return errors;
+  }
+
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
+    setValidate(validateData());
 
-    const verifyData = name.trim() && link.trim();
+    setIsCompanyExists(companies.some(company => company.name === name));
 
-    if (verifyData) {
+    if (!validateData().length && !isCompanyExists) {
       const id = selectedCompanyId > 0
         ? selectedCompanyId
         : Math.max(...companies.map(item => item.id)) + 1;
@@ -98,63 +124,44 @@ export const CompaniesForm: React.FC<Props> = ({ selectedCompanyId }) => {
 
   return (
     <form className="form" onSubmit={(event) => handleSubmit(event)}>
-      <div className="row g-3 align-items-center">
-        <div className="col-auto">
-          <label className="col-form-label">Company name</label>
-        </div>
-        <div className="col-auto">
-          <input 
-            value={name}
-            onChange={(event) => setName(event.target.value)}
-            type="text" 
-            className="form-control" 
-            required 
-          />
-        </div>
-        <div className="col-auto">
-          <span className="form-text">
-            Enter company name
-          </span>
+      <div className="mb-2">
+        <label className="form-label">Company name</label>
+        <input 
+          value={name}
+          onChange={(event) => setName(event.target.value)}
+          type="text" 
+          className="form-control"  
+        />
+        <div className="form-text">
+          {validate.includes('name') && 'Enter correct  company name'}
+          {isCompanyExists && 'This company is already in list'}
         </div>
       </div>
 
-      <div className="row g-3 align-items-center">
-        <div className="col-auto">
-          <label className="col-form-label">Company link</label>
-        </div>
-        <div className="col-auto">
-          <input 
-            value={link}
-            onChange={(event) => setLink(event.target.value)}
-            type="text" 
-            className="form-control" 
-            required 
-          />
-        </div>
-        <div className="col-auto">
-          <span className="form-text">
-            Enter company link
-          </span>
+      <div className="mb-2">
+        <label className="form-label">Company link</label>
+        <input 
+          value={link}
+          onChange={(event) => setLink(event.target.value)}
+          type="text" 
+          className="form-control"  
+        />
+        <div className="form-text">
+          {validate.includes('link') && 'Enter correct link'}
         </div>
       </div>
 
-      <div className="row g-3 align-items-center">
-        <div className="col-auto">
-          <label className="col-form-label">Logo link</label>
-        </div>
-        <div className="col-auto">
-          <input 
-            value={logoLink}
-            onChange={(event) => setLogoLink(event.target.value)}
-            type="text" 
-            className="form-control" 
-            required 
-          />
-        </div>
-        <div className="col-auto">
-          <span className="form-text">
-            Enter logo link
-          </span>
+      <div className="mb-2">
+        <label className="form-label">Logo link (Optional)</label>
+        <input 
+          value={logoLink}
+          onChange={(event) => setLogoLink(event.target.value)}
+          type="text" 
+          className="form-control" 
+          required 
+        />
+        <div className="form-text">
+          {validate.includes('logoLink') && 'Enter correct link'}
         </div>
       </div>
 
