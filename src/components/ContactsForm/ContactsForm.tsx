@@ -26,6 +26,7 @@ export const ContactsForm: React.FC<Props> = ({ selectedContactId }) => {
   const [adress, setAdress] = useState('');
   const [city, setCity] = useState('');
   const [country, setCountry] = useState('');
+  const [validate, setValidate] = useState<string[]>([]);
   const [company, setCompany] = useState(1);
 
   useEffect(() => {
@@ -43,23 +44,45 @@ export const ContactsForm: React.FC<Props> = ({ selectedContactId }) => {
         setCompany(selectedContact.companyid);
       }
     }
-  }, [selectedContactId])
+  }, [selectedContactId]);
 
   const handleBackButton = () => {
     dispatch(selectedContactActions.removeContact());
   };
 
+  const validateData = () => {
+    const errors = [];
+    const stringFormat = /^([a-zA-Z ]){2,30}$/;
+    /* eslint-disable */
+    const emailFormat = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
+    const numberFormat = /^\(?(\d{3})\)?[- ]?(\d{3})[- ]?(\d{4})$/;
+    /* eslint-enable */
+    const adressFormat = /^[a-zA-Z0-9\s,'-]*$/;
+
+    const validName = stringFormat.test(name);
+    const validLastname = lastname.match(stringFormat);
+    const validEmail = email.match(emailFormat);
+    const validNumber = phone.match(numberFormat);
+    const validAdress = adress.match(adressFormat);
+    const validCity = city.match(stringFormat);
+    const validCountry = country.match(stringFormat);
+
+    !validName && errors.push('name');
+    !validLastname && errors.push('lastname');
+    !validEmail && errors.push('email');
+    !validNumber && errors.push('number');
+    !validAdress && errors.push('adress');
+    !validCity && errors.push('city');
+    !validCountry && errors.push('country');
+
+    return errors;
+  };
+
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
+    setValidate(validateData());
 
-    const verifyData = name.trim() && lastname.trim()
-    && email.trim()
-    && phone.trim()
-    && adress.trim()
-    && city.trim()
-    && country.trim();
-
-    if (verifyData) {
+    if (!validateData().length) {
       const id = selectedContactId > 0
         ? selectedContactId
         : Math.max(...contacts.map(item => item.id)) + 1;
@@ -118,144 +141,95 @@ export const ContactsForm: React.FC<Props> = ({ selectedContactId }) => {
 
   return (
     <form className='form' onSubmit={(event) => handleSubmit(event)}>
-      <div className="row g-3 align-items-center">
-        <div className="col-auto">
-          <label className="col-form-label">Name</label>
-        </div>
-        <div className="col-auto">
-          <input 
-            value={name}
-            onChange={(event) => setName(event.target.value)}
-            type="text" 
-            className="form-control" 
-            required 
-          />
-        </div>
-        <div className="col-auto">
-          <span className="form-text">
-            Enter your name
-          </span>
+      <div className="mb-2">
+        <label className="form-label">Name</label>
+        <input 
+          value={name}
+          onChange={(event) => setName(event.target.value)}
+          type="text" 
+          className="form-control"  
+        />
+        <div className="form-text">
+          {validate.includes('name') && 'Enter your correct name'}
         </div>
       </div>
 
-      <div className="row g-3 align-items-center">
-        <div className="col-auto">
-          <label className="col-form-label">Lastname</label>
-        </div>
-        <div className="col-auto">
-          <input 
-            value={lastname}
-            onChange={(event) => setLastname(event.target.value)}
-            type="text" 
-            className="form-control" 
-            required 
-          />
-        </div>
-        <div className="col-auto">
-          <span className="form-text">
-            Enter your lastname
-          </span>
+      <div className="mb-2">
+        <label className="form-label">Lastname</label>
+        <input 
+          value={lastname}
+          onChange={(event) => setLastname(event.target.value)}
+          type="text" 
+          className="form-control"  
+        />
+        <div className="form-text">
+          {validate.includes('lastname') && 'Enter your correct lastname'}
         </div>
       </div>
 
-      <div className="row g-3 align-items-center">
-        <div className="col-auto">
-          <label className="col-form-label">Email</label>
-        </div>
-        <div className="col-auto">
-          <input 
-            value={email}
-            onChange={(event) => setEmail(event.target.value)}
-            type="email" 
-            className="form-control" 
-            required 
-          />
-        </div>
-        <div className="col-auto">
-          <span className="form-text">
-            Enter your email
-          </span>
+      <div className="mb-2">
+        <label className="form-label">Email</label>
+        <input 
+          value={email}
+          onChange={(event) => setEmail(event.target.value)}
+          type="email" 
+          className="form-control"  
+        />
+        <div className="form-text"> 
+          {validate.includes('email') && 'Enter your correct email'}
         </div>
       </div>
 
-      <div className="row g-3 align-items-center">
-        <div className="col-auto">
-          <label className="col-form-label">Phone number</label>
-        </div>
-        <div className="col-auto">
-          <input
-            value={phone}
-            onChange={(event) => setPhone(event.target.value)}
-            type="tel"
-            className="form-control"
-            pattern="[0-9]{3}-[0-9]{3}-[0-9]{4}"
-            required
-          />
-        </div>
-        <div className="col-auto">
-          <span className="form-text">
-            In format &apos;123-456-7890&apos;
-          </span>
+      <div className="mb-2">
+        <label className="form-label">Phone number</label>
+        <input
+          value={phone}
+          onChange={(event) => setPhone(event.target.value)}
+          type="tel"
+          className="form-control"
+          
+        />
+        <div className="form-text">
+          {validate.includes('number') && `Enter your phone in format '123-456-7890', '1234567890'`}
         </div>
       </div>
 
-      <div className="row g-3 align-items-center">
-        <div className="col-auto">
-          <label className="col-form-label">Adress</label>
-        </div>
-        <div className="col-auto">
+      <div className="mb-2">
+          <label className="form-label">Adress</label>
           <input 
             value={adress}
             onChange={(event) => setAdress(event.target.value)}
             type="text" 
-            className="form-control" 
-            required 
+            className="form-control"  
           />
-        </div>
-        <div className="col-auto">
-          <span className="form-text">
-            Enter your adress
-          </span>
+        <div className="form-text">
+            {validate.includes('adress') && 'Enter your correct adress'}
         </div>
       </div>
 
-      <div className="row g-3 align-items-center">
-        <div className="col-auto">
-          <label className="col-form-label">City</label>
-        </div>
-        <div className="col-auto">
-          <input 
-            value={city}
-            onChange={(event) => setCity(event.target.value)}
-            type="text" 
-            className="form-control" 
-            required 
-          />
-        </div>
-        <div className="col-auto">
-          <span className="form-text">
-            Enter your city
-          </span>
+      <div className="mb-2">
+        <label className="form-label">City</label>
+        <input 
+          value={city}
+          onChange={(event) => setCity(event.target.value)}
+          type="text" 
+          className="form-control"  
+        />
+        <div className="form-text">
+          {validate.includes('city') && 'Enter your correct city'}
         </div>
       </div>
 
-      <div className="row g-3 align-items-center">
-        <div className="col-auto">
-          <label className="col-form-label">Country</label>
-        </div>
-        <div className="col-auto">
+      <div className="mb-2">
+          <label className="form-label">Country</label>
           <input 
             value={country}
             onChange={(event) => setCountry(event.target.value)}
             type="text" 
-            className="form-control" 
-            required 
+            className="form-control"  
           />
-        </div>
-        <div className="col-auto">
-          <span className="form-text">
-            Enter your country
-          </span>
+        <div className="form-text">
+          {validate.includes('country') && 'Enter your correct country'}
         </div>
       </div>
 
